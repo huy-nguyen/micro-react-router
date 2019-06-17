@@ -1,100 +1,41 @@
-import {getQueriesForElement} from 'pptr-testing-library';
+import React from 'react';
+import App from '../App';
+import { render } from '@testing-library/react';
 
-it('navigation by clicking simple links should work', async () => {
-  await page.goto('http://localhost:8826');
-  const document = await page.getDocument();
-  getQueriesForElement(document);
+const setURL = (url) => window.history.pushState(null, null, url);
 
-  await expect(
-    await document.getByText(/Match result:/)
-  ).toMatch(/Success/)
+const cleanUpURL = () => setURL('');
 
-  await expect(
-    await document.getByText(/Matched route ID/)
-  ).toMatch(/home/)
+afterEach(() => {
+  cleanUpURL();
+})
 
-  await expect(
-    document.getByText(/Path Param/)
-  ).rejects.toThrow(/Unable to find an element/);
+test('Navigation by clicking on simple links should work', () => {
+  setURL('');
 
-  await expect(
-    document.getByText(/Query Param/)
-  ).rejects.toThrow(/Unable to find an element/);
+  const {getByText} = render(<App/>)
+  expect(getByText(/Match result:/)).toHaveTextContent(/Success/)
+  expect(getByText(/Matched route ID:/)).toHaveTextContent(/home/)
 
-  // Navigate to route with mandatory path params:
-  const topicHaskellLink = await document.getByText(/Simple Link: Topic Haskell/)
+  expect(
+    () => getByText(/Path Param:/)
+  ).toThrow(/Unable to find an element/);
 
-  await Promise.all([
-    topicHaskellLink.click(),
-    page.waitForNavigation(),
-  ])
+  expect(
+    () => getByText(/Query Param:/)
+  ).toThrow(/Unable to find an element/);
 
-  await expect(
-    await document.getByText(/Match result:/)
-  ).toMatch(/Success/)
-  await expect(
-    await document.getByText(/Matched route ID/)
-  ).toMatch(/topics/);
+  setURL('/about/me');
 
-  await expect(
-    await document.getByText(/Path Param:/)
-  ).toMatch(/topicName: haskell/)
+  expect(getByText(/Match result:/)).toHaveTextContent(/Success/)
+  expect(getByText(/Matched route ID:/)).toHaveTextContent(/about-me/)
 
-  await expect(
-    document.getByText(/Query Param/)
-  ).rejects.toThrow(/Unable to find an element/);
+  expect(
+    () => getByText(/Path Param:/)
+  ).toThrow(/Unable to find an element/);
 
-  // Navigate to route with query params:
-  const myWorksIn2000Link = await document.getByText(/Simple Link: About My Works in 2000/);
+  expect(
+    () => getByText(/Query Param:/)
+  ).toThrow(/Unable to find an element/);
 
-  await Promise.all([
-    myWorksIn2000Link.click(),
-    page.waitForNavigation(),
-  ])
-
-  await expect(
-    await document.getByText(/Match result:/)
-  ).toMatch(/Success/)
-
-  await expect(
-    await document.getByText(/Matched route ID/)
-  ).toMatch(/about-my-works/)
-
-  await expect(
-    document.getByText(/Path Param/)
-  ).rejects.toThrow(/Unable to find an element/);
-
-  await expect(
-    await document.getByText(/Query Param:/)
-  ).toMatch(/year: 2000/)
-
-  // Navigate to route with both path and query params:
-  const artOfComputerProgrammingLInk = await document.getByText(
-    /Simple Link: About My Work: The Art of Computer Programming/
-  );
-
-  await Promise.all([
-    artOfComputerProgrammingLInk.click(),
-    page.waitForNavigation(),
-  ])
-
-  await expect(
-    await document.getByText(/Match result:/)
-  ).toMatch(/Success/)
-
-  await expect(
-    await document.getByText(/Matched route ID/)
-  ).toMatch(/about-my-works/)
-
-  await expect(
-    await document.getByText(/Path Param:/)
-  ).toMatch(/workName: the-art-of-computer-programming/)
-
-  await expect(
-    await document.getByText(/Query Param: part:/)
-  ).toMatch(/1/)
-
-  // Note: timeout is very long because if the default timeout is used when
-  // puppeteer is launch with the `slowMo` option, jest will terminate the test
-  // before all the navigation steps are carried out:
-}, 20_000)
+})

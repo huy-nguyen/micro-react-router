@@ -1,139 +1,99 @@
-import {getQueriesForElement} from 'pptr-testing-library';
+import React from 'react';
+import App from '../App';
+import { render } from '@testing-library/react';
 
-it('should succeeed in matching home route', async () => {
-  await page.goto('http://localhost:8826');
-  const document = await page.getDocument();
-  getQueriesForElement(document);
+const setURL = (url) => window.history.pushState(null, null, url);
 
-  await expect(
-    await document.getByText(/Match result:/)
-  ).toMatch(/Success/)
+const cleanUpURL = () => setURL('');
 
-  await expect(
-    await document.getByText(/Matched route ID/)
-  ).toMatch(/home/)
-
-  await expect(
-    document.getByText(/Path Param/)
-  ).rejects.toThrow(/Unable to find an element/);
-
-  await expect(
-    document.getByText(/Query Param/)
-  ).rejects.toThrow(/Unable to find an element/);
-})
-
-it('should succeeed in matching simple route with no path or query params', async () => {
-  await page.goto('http://localhost:8826/about/me');
-  const document = await page.getDocument();
-  getQueriesForElement(document);
-
-  await expect(
-    await document.getByText(/Match result:/)
-  ).toMatch(/Success/)
-
-  await expect(
-    await document.getByText(/Matched route ID/)
-  ).toMatch(/about-me/)
-
-  await expect(
-    document.getByText(/Path Param/)
-  ).rejects.toThrow(/Unable to find an element/);
-
-  await expect(
-    document.getByText(/Query Param/)
-  ).rejects.toThrow(/Unable to find an element/);
-})
-
-it('Should succeed in matching mandatory path params', async () => {
-  await page.goto('http://localhost:8826/topics/haskell');
-  const document = await page.getDocument();
-  getQueriesForElement(document);
-
-  await expect(
-    await document.getByText(/Match result:/)
-  ).toMatch(/Success/)
-
-  await expect(
-    await document.getByText(/Matched route ID/)
-  ).toMatch(/topics/)
-
-  await expect(
-    await document.getByText(/Path Param:/)
-  ).toMatch(/topicName: haskell/)
-
-  await expect(
-    document.getByText(/Query Param/)
-  ).rejects.toThrow(/Unable to find an element/);
-})
-
-it('Should succeed in matching optional path params', async () => {
-  await page.goto('http://localhost:8826/about/me/works/the-mythical-man-month');
-  const document = await page.getDocument();
-  getQueriesForElement(document);
-
-  await expect(
-    await document.getByText(/Match result:/)
-  ).toMatch(/Success/)
-
-  await expect(
-    await document.getByText(/Matched route ID/)
-  ).toMatch(/about-my-works/)
-
-  await expect(
-    await document.getByText(/Path Param:/)
-  ).toMatch(/workName: the-mythical-man-month/)
-
-  await expect(
-    document.getByText(/Query Param/)
-  ).rejects.toThrow(/Unable to find an element/);
-})
-
-it('Should succeed in matching query params', async () => {
-  await page.goto('http://localhost:8826/about/me/works?year=2000');
-  const document = await page.getDocument();
-  getQueriesForElement(document);
-
-  await expect(
-    await document.getByText(/Match result:/)
-  ).toMatch(/Success/)
-
-  await expect(
-    await document.getByText(/Matched route ID/)
-  ).toMatch(/about-my-works/)
-
-  await expect(
-    document.getByText(/Path Param/)
-  ).rejects.toThrow(/Unable to find an element/);
-
-  await expect(
-    await document.getByText(/Query Param:/)
-  ).toMatch(/year: 2000/)
-})
-
-it('Should succeed in matching path and query params', async () => {
-  await page.goto('http://localhost:8826/about/me/works/the-art-of-computer-programming?part=1&year=2000');
-  const document = await page.getDocument();
-  getQueriesForElement(document);
-
-  await expect(
-    await document.getByText(/Match result:/)
-  ).toMatch(/Success/)
-
-  await expect(
-    await document.getByText(/Matched route ID/)
-  ).toMatch(/about-my-works/)
-
-  await expect(
-    await document.getByText(/Path Param:/)
-  ).toMatch(/workName: the-art-of-computer-programming/)
-
-  await expect(
-    await document.getByText(/Query Param: year:/)
-  ).toMatch(/2000/)
-
-  await expect(
-    await document.getByText(/Query Param: part:/)
-  ).toMatch(/1/)
+afterEach(() => {
+  cleanUpURL();
 })
 
 
+test('should succeeed in matching home route', () => {
+  setURL('');
+
+  const {getByText} = render(<App/>)
+  expect(getByText(/Match result:/)).toHaveTextContent(/Success/)
+  expect(getByText(/Matched route ID:/)).toHaveTextContent(/home/)
+
+  expect(
+    () => getByText(/Path Param:/)
+  ).toThrow(/Unable to find an element/);
+
+  expect(
+    () => getByText(/Query Param:/)
+  ).toThrow(/Unable to find an element/);
+
+})
+
+test('should succeeed in matching simple route with no path or query params', () => {
+  setURL('/about/me');
+
+  const {getByText} = render(<App/>)
+  expect(getByText(/Match result:/)).toHaveTextContent(/Success/)
+  expect(getByText(/Matched route ID:/)).toHaveTextContent(/about-me/)
+
+  expect(
+    () => getByText(/Path Param:/)
+  ).toThrow(/Unable to find an element/);
+
+  expect(
+    () => getByText(/Query Param:/)
+  ).toThrow(/Unable to find an element/);
+
+})
+
+test('Should succeed in matching mandatory path params', () => {
+  setURL('/topics/haskell');
+
+  const {getByText} = render(<App/>);
+  expect(getByText(/Match result:/)).toHaveTextContent(/Success/);
+  expect(getByText(/Matched route ID:/)).toHaveTextContent(/topics/);
+  expect(getByText(/Path Param:/)).toHaveTextContent(/topicName: haskell/);
+
+  expect(
+    () => getByText(/Query Param:/)
+  ).toThrow(/Unable to find an element/);
+
+})
+
+test('Should succeed in matching optional path params', () => {
+  setURL('/about/me/works/the-mythical-man-month');
+
+  const {getByText} = render(<App/>);
+  expect(getByText(/Match result:/)).toHaveTextContent(/Success/);
+  expect(getByText(/Matched route ID:/)).toHaveTextContent(/about-my-works/);
+  expect(getByText(/Path Param:/)).toHaveTextContent(/workName: the-mythical-man-month/);
+
+  expect(
+    () => getByText(/Query Param:/)
+  ).toThrow(/Unable to find an element/);
+
+})
+
+test('Should succeed in matching query params', () => {
+  setURL('/about/me/works?year=2000');
+
+  const {getByText} = render(<App/>);
+  expect(getByText(/Match result:/)).toHaveTextContent(/Success/);
+  expect(getByText(/Matched route ID:/)).toHaveTextContent(/about-my-works/);
+  expect(getByText(/Query Param:/)).toHaveTextContent(/year: 2000/);
+
+  expect(
+    () => getByText(/Path Param:/)
+  ).toThrow(/Unable to find an element/);
+
+})
+
+test('Should succeed in matching path and query params', () => {
+  setURL('/about/me/works/the-art-of-computer-programming?part=1&year=2000');
+
+  const {getByText} = render(<App/>);
+  expect(getByText(/Match result:/)).toHaveTextContent(/Success/);
+  expect(getByText(/Matched route ID:/)).toHaveTextContent(/about-my-works/);
+  expect(getByText(/Path Param/)).toHaveTextContent(/workName: the-art-of-computer-programming/);
+  expect(getByText(/Query Param: part:/)).toHaveTextContent(/part: 1/);
+  expect(getByText(/Query Param: year:/)).toHaveTextContent(/year: 2000/);
+})

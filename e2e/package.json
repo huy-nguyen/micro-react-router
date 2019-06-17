@@ -14,11 +14,13 @@
     "@babel/preset-env": "7.4.5",
     "@babel/preset-react": "7.0.0",
     "@babel/preset-typescript": "7.3.3",
+    "@testing-library/cypress": "4.0.3",
     "@types/react": "16.8.20",
     "@types/react-dom": "16.8.4",
     "@types/styled-components": "4.1.16",
     "babel-loader": "8.0.6",
     "css-loader": "3.0.0",
+    "cypress": "3.3.1",
     "html-webpack-plugin": "3.2.0",
     "http-server": "0.11.1",
     "jest": "24.8.0",
@@ -37,8 +39,8 @@
     "dev": "webpack-dev-server --mode development --config webpack.config.js",
     "build": "rimraf dist && webpack --mode production --config webpack.config.js",
     "serve": "http-server dist -p 8826 -d False -s -P http://localhost:8826?",
-    "test": "jest --verbose --runInBand",
-    "test:watch": "jest --watch --runInBand",
-    "test:slowmo": "JEST_PUPPETEER_CONFIG=slowmo-jest-puppeteer-config.js yarn test"
+    "cypress:open": "cypress open",
+    "cypress": "cypress run",
+    "test": "yarn serve && yarn cypress"
   }
 }

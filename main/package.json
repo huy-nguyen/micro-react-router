@@ -25,7 +25,7 @@
     "react": "^16.8.6"
   },
   "scripts": {
-    "test": "jest --coverage",
+    "test": "jest --coverage --verbose",
     "typecheck": "tsc --noEmit",
     "clean:cjs": "rimraf lib",
     "build:cjs": "rollup -c --environment MODULE_TYPE:cjs",

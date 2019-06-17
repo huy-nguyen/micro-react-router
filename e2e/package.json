@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "@babel/core": "7.4.5",
+    "@babel/plugin-proposal-numeric-separator": "7.2.0",
     "@babel/preset-env": "7.4.5",
     "@babel/preset-react": "7.0.0",
     "@babel/preset-typescript": "7.3.3",
@@ -21,6 +22,10 @@
     "html-webpack-plugin": "3.2.0",
     "http-server": "0.11.1",
     "jest": "24.8.0",
+    "jest-environment-puppeteer": "4.2.0",
+    "jest-puppeteer": "4.2.0",
+    "pptr-testing-library": "0.4.0",
+    "puppeteer": "1.17.0",
     "rimraf": "2.6.3",
     "style-loader": "0.23.1",
     "typescript": "3.5.2",
@@ -31,6 +36,9 @@
   "scripts": {
     "dev": "webpack-dev-server --mode development --config webpack.config.js",
     "build": "rimraf dist && webpack --mode production --config webpack.config.js",
-    "serve": "http-server dist -p 8826 -d False -s -P http://localhost:8826?"
+    "serve": "http-server dist -p 8826 -d False -s -P http://localhost:8826?",
+    "test": "jest --verbose --runInBand",
+    "test:watch": "jest --watch --runInBand",
+    "test:slowmo": "JEST_PUPPETEER_CONFIG=slowmo-jest-puppeteer-config.js yarn test"
   }
 }
